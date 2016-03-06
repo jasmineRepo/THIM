@@ -6,7 +6,6 @@ import microsim.engine.SimulationEngine;
 import microsim.event.EventListener;
 import microsim.event.Order;
 import microsim.event.SingleTargetEvent;
-import microsim.gui.shell.MicrosimShell;
 import microsim.statistics.regression.RegressionUtils;
 import jasmine.thim.data.Parameters;
 import jasmine.thim.experiment.THIMStart;

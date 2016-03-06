@@ -19,7 +19,7 @@ public class Statistics {
 	= (THIMModel) SimulationEngine.getInstance().getManager(THIMModel.class.getCanonicalName());
 	
 	@Id
-	private PanelEntityKey id;
+	private PanelEntityKey key = new PanelEntityKey(1L);
 	
 	//Fields necessary for model evolution i.e. Sim processes
 	
@@ -291,7 +291,7 @@ public class Statistics {
 		///////////////////////////////////////////////////////////////////////////////////////////////
 		
 		for(Nbhd nbhd : model.getNbhds()) {
-			int nbhdId = nbhd.getId().getId().intValue();
+			int nbhdId = nbhd.getKey().getId().intValue();
 			
 			double avgAdultIncomeInThisNbhd = avgAdultIncomeInNbhd[nbhdId];
 			if(avgAdultIncome > 0) {
@@ -504,6 +504,10 @@ public class Statistics {
 	///////////////////////////////////////////////
 	// Access methods
 	///////////////////////////////////////////////	
+	
+	public PanelEntityKey getKey() {
+		return key;
+	}
 	
 	public double getAvgAdultIncome() {
 		return avgAdultIncome;

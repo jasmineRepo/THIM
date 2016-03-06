@@ -13,7 +13,7 @@ public class Nbhd {
 	public static long nbhdIdCounter = 0;
 	
 	@Id
-	private PanelEntityKey id;
+	private PanelEntityKey key;
 
 	@Column(name="number_of_workers")
 	private int numWorkingResidents;				//Number of sims that live in this nbhd whose age >= their yearsInEducation, i.e. they have finished school and are now receiving an income.
@@ -53,8 +53,7 @@ public class Nbhd {
 	
 	public Nbhd( long idNumber ) {
 		this();
-		id = new PanelEntityKey();
-		id.setId(idNumber);
+		key = new PanelEntityKey(idNumber);
 		numWorkingResidents = 0;
 	}
 	
@@ -63,8 +62,8 @@ public class Nbhd {
 	// Access methods
 	/////////////////////////////////////////////////////////////////////
 	
-	public PanelEntityKey getId() {
-		return id;
+	public PanelEntityKey getKey() {
+		return key;
 	}
 	public int getNumWorkingResidents() {
 		return numWorkingResidents;

@@ -32,7 +32,7 @@ public class Sim implements EventListener, IDoubleSource, IIntSource {
 	private THIMModel model;
 	
 	@Id
-	private PanelEntityKey id;
+	private PanelEntityKey key;
 	
 	private int age;		
 	
@@ -190,8 +190,8 @@ public class Sim implements EventListener, IDoubleSource, IIntSource {
 	//Constructor used for creating initial population
 	public Sim(long idNumber) {
 		this();
-		id = new PanelEntityKey();
-		id.setId(simIdCounter);
+		key = new PanelEntityKey();
+		key.setId(simIdCounter);
 		
 		income = 0.;		//This will be updated when the Sim's age is greater than yearsInEducation
 		cumulativeIncome = 0.;
@@ -233,7 +233,7 @@ public class Sim implements EventListener, IDoubleSource, IIntSource {
 
 		//Set new sim's nbhd to that of the parent.
 		this.nbhd = parent.getNbhd();					
-		this.setNbhdId(nbhd.getId().getId().intValue());
+		this.setNbhdId(nbhd.getKey().getId().intValue());
 
 		scheduleNewBornSimEvents();				//Schedule future events where the date is known at birth (e.g. when the Sim becomes fertile and calls considerBirth for the first time, when the sim finishes education etc. 
 
@@ -292,7 +292,7 @@ public class Sim implements EventListener, IDoubleSource, IIntSource {
 	}
 
 	private void drawInitialNbhdId() {	//This is different to ModGen implementation, which seems to randomly distribution nbhds for adults, then assign children to the nbhd of their parents.  Our method ensures even distribution across all nbhds at start of simulation.			
-		nbhdId = ((int)(id.getId() % Parameters.getSimulatedNeighborhoods()));
+		nbhdId = ((int)(key.getId() % Parameters.getSimulatedNeighborhoods()));
 		nbhd = model.getNbhd(nbhdId);
 	}
 
@@ -512,7 +512,7 @@ public class Sim implements EventListener, IDoubleSource, IIntSource {
 	
 	private void moveNbhd(Nbhd newNbhd) {
 		nbhd = newNbhd;
-		nbhdId = nbhd.getId().getId().intValue();		
+		nbhdId = nbhd.getKey().getId().intValue();		
 	}
 
 	protected void considerBirth() {   
@@ -535,10 +535,10 @@ public class Sim implements EventListener, IDoubleSource, IIntSource {
 			double currentTime = SimulationEngine.getInstance().getTime();
 			newborn.setBirthTimestamp(currentTime - (long)currentTime);
 			if(!model.getSims().add(newborn)) {
-				throw new RuntimeException("Model failed to add newborn sim " + newborn.getId().getId() + " to the set of sims");
+				throw new RuntimeException("Model failed to add newborn sim " + newborn.getKey().getId() + " to the set of sims");
 			}
 			if(!childSims.add(newborn)) {			//Add child Sim to parent's list of childSims, so that children can be informed of moving nbhd when parent moves.
-				throw new RuntimeException("Model failed to add newborn sim " + newborn.getId().getId() + " to the set of child sims of parent sim " + id.getId());
+				throw new RuntimeException("Model failed to add newborn sim " + newborn.getKey().getId() + " to the set of child sims of parent sim " + key.getId());
 			}
 			considerBirth();			//Now consider possibility of giving birth to next child in the future and schedule as necessary, as long as the Sim's age is less than the maximum age to reproduce.
 		}
@@ -595,7 +595,7 @@ public class Sim implements EventListener, IDoubleSource, IIntSource {
 		
 		isDead = true;							//This prevents methods like considerBirth and giveBirth having any effect on population grow after the sim has died.
 		if(!model.removeSim(this)) {			//Sets the sim reference to null
-			throw new RuntimeException("Sim " + id.getId() + " not removed from either THIMModel.sims!");
+			throw new RuntimeException("Sim " + key.getId() + " not removed from either THIMModel.sims!");
 		}
 
 	}
@@ -608,8 +608,8 @@ public class Sim implements EventListener, IDoubleSource, IIntSource {
 	
 
 
-	public PanelEntityKey getId() {
-		return id;
+	public PanelEntityKey getKey() {
+		return key;
 	}
 	public int getYearsInEducation() {
 		return yearsInEducation;

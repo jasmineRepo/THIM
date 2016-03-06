@@ -1,8 +1,8 @@
 package jasmine.thim.experiment;
 
 import microsim.annotation.ModelParameter;
+import microsim.data.DataExport;
 import microsim.data.MultiKeyCoefficientMap;
-import microsim.data.db.DatabaseUtils;
 import microsim.engine.AbstractSimulationCollectorManager;
 import microsim.engine.SimulationManager;
 import microsim.event.EventListener;
@@ -37,27 +37,37 @@ public class THIMCollector extends AbstractSimulationCollectorManager implements
 //	private Integer numAgeBinsInTables = 20;
 //	
 //	private double numYearsInTableBins;				//The number of years of age range each bin contains (== max age / numAgeBinsInTables)
-	
+
 	@ModelParameter(description="produce output tables in .csv format")
-	private Boolean produceOutputTables = true;
+	private boolean produceOutputTables = true;
 	
+	@ModelParameter(description="Export snapshots to database")
+	private boolean exportToDatabase = false;
+
+	@ModelParameter(description="Export snapshots to .csv files")
+	private boolean exportToCSV = false;
+
 	@ModelParameter(description="persists the individual sim data in the database")
-	private Boolean saveSimData = false;
+	private boolean saveSimData = false;
 	
 	@ModelParameter(description="persists the nbhd data in the database")
-	private Boolean saveNbhdData = false;
+	private boolean saveNbhdData = false;
 	
 	@ModelParameter(description="persists the aggregate city-level statistics in the database")
-	private Boolean saveCityData = false;
+	private boolean saveCityData = false;
 	
-	@ModelParameter(description="year to start persisting database")
-	private Integer yearDatabaseDumpStarts = 450;		//Allows the user to control when the simulation starts exporting to the database, in case they want to delay exporting until after an initial 'burn-in' period.	
+	@ModelParameter(description="year to start persisting snapshots of data for export")
+	private Integer yearToBeginDataSnapshots = 0;		//Allows the user to control when the simulation starts exporting to the database, in case they want to delay exporting until after an initial 'burn-in' period.	
 	
-	@ModelParameter(description="number of years between database dumps")
-	private Integer numYearsBetweenDatabaseDumps = 10;
+	@ModelParameter(description="number of years between snapshots")
+	private Integer numYearsBetweenDatabaseSnapshots = 1;
 	
 //	@ModelParameter(description="number of quantiles for nbhd table")
 //	private Integer numQuantilesForNbhdTable = 7;		//Attempt to capture a range of quantiles as in the ModGen ad-hoc nbhd rank numbers...
+	
+	DataExport simsOutput;
+	DataExport nbhdsOutput;
+	DataExport statsOutput;
 	
 	public THIMCollector(SimulationManager manager) {
 		super(manager);
@@ -73,18 +83,27 @@ public class THIMCollector extends AbstractSimulationCollectorManager implements
 	// Manager
 	/////////////////////////////////////////////////////////
 
-	public void buildObjects() {		//Necessary for AbstractSimulationCollectorManager()
+	public void buildObjects() {
 		if(!THIMStart.isShowGui() && THIMStart.isUseDatabase()) {
 			saveSimData = true;
 			saveNbhdData = true;
 			saveCityData = true;
 		}
+		if(saveSimData) {
+			simsOutput = new DataExport(((THIMModel) getManager()).getSims(), exportToDatabase, exportToCSV);	
+		}
+		if(saveNbhdData) {
+			nbhdsOutput = new DataExport(((THIMModel) getManager()).getNbhds(), exportToDatabase, exportToCSV);	
+		}
+		if(saveCityData) {
+			statsOutput = new DataExport(((THIMModel) getManager()).getStats(), exportToDatabase, exportToCSV);	
+		}		
 	}
 	
 	public void buildSchedule() {
 
 		if(saveCityData || saveNbhdData || saveSimData) {
-			getEngine().getEventList().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpInfo), yearDatabaseDumpStarts, Order.BEFORE_ALL.getOrdering()+1, numYearsBetweenDatabaseDumps);		//Dump info from year 'yearDatabaseDumpStarts' onwards, with numYearsBetweenDatabaseDumps specifying the frequency of database dumps thereafter (nbhd and statistics only updated at start of new year, Sim data only updated once a year on their birth'day's (year + birthTimestamps), so once a year is minimum suitable frequency to dump to database
+			getEngine().getEventList().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpInfo), yearToBeginDataSnapshots, Order.BEFORE_ALL.getOrdering()+1, numYearsBetweenDatabaseSnapshots);		//Dump info from year 'yearDatabaseDumpStarts' onwards, with numYearsBetweenDatabaseDumps specifying the frequency of database dumps thereafter (nbhd and statistics only updated at start of new year, Sim data only updated once a year on their birth'day's (year + birthTimestamps), so once a year is minimum suitable frequency to dump to database
 
 //			//Dump data to database at the (scheduled) end of the simulation
 //			getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.DumpInfo), ((THIMModel) getManager()).getEndYear(), Order.BEFORE_ALL.getOrdering()+1, 0.);
@@ -109,38 +128,18 @@ public class THIMCollector extends AbstractSimulationCollectorManager implements
 		ProduceOutputTables
 	}
 	
-//	@Override
 	public void onEvent(Enum<?> type) {
 		switch ((Processes) type) {
 				
 		case DumpInfo:
-			try {
-				if (saveCityData) {
-//					DatabaseUtils.snap(DatabaseUtils.getOutEntityManger(), 
-//					(long) SimulationEngine.getInstance().getCurrentRunNumber(), 
-//					getEngine().getTime(), 
-//					((THIMModel) getManager()).getStats());
-					DatabaseUtils.snap(((THIMModel) getManager()).getStats());
-				}
-				
-				if (saveSimData) {
-//					DatabaseUtils.snap(DatabaseUtils.getOutEntityManger(), 
-//							(long) SimulationEngine.getInstance().getCurrentRunNumber(), 
-//							getEngine().getTime(), 
-//							((THIMModel) getManager()).getSims());
-					DatabaseUtils.snap(((THIMModel) getManager()).getSims());
-				}
-				
-				if(saveNbhdData) {
-//					DatabaseUtils.snap(DatabaseUtils.getOutEntityManger(), 
-//							(long) SimulationEngine.getInstance().getCurrentRunNumber(), 
-//							getEngine().getTime(), 
-//							((THIMModel) getManager()).getNbhds());
-					DatabaseUtils.snap(((THIMModel) getManager()).getNbhds());
-				}
-				
-			} catch (Exception e) {
-				log.error(e.getMessage());				
+			if (saveSimData) {
+				simsOutput.export();
+			}
+			if(saveNbhdData) {
+				nbhdsOutput.export();
+			}
+			if (saveCityData) {
+				statsOutput.export();
 			}
 			break;
 
@@ -457,52 +456,68 @@ public class THIMCollector extends AbstractSimulationCollectorManager implements
 	// Access methods
 	//////////////////////////////////////////////////////////
 
-	public Integer getYearDatabaseDumpStarts() {
-		return yearDatabaseDumpStarts;
-	}
-
-	public void setYearDatabaseDumpStarts(Integer yearDatabaseDumpStarts) {
-		this.yearDatabaseDumpStarts = yearDatabaseDumpStarts;
-	}
-
-	public Boolean getSaveSimData() {
-		return saveSimData;
-	}
-
-	public void setSaveSimData(Boolean saveSimData) {
-		this.saveSimData = saveSimData;
-	}
-
-	public Boolean getSaveNbhdData() {
-		return saveNbhdData;
-	}
-
-	public void setSaveNbhdData(Boolean saveNbhdData) {
-		this.saveNbhdData = saveNbhdData;
-	}
-	
-	public Boolean getSaveCityData() {
-		return saveCityData;
-	}
-
-	public void setSaveCityData(Boolean saveCityData) {
-		this.saveCityData = saveCityData;
-	}
-
-	public Integer getNumYearsBetweenDatabaseDumps() {
-		return numYearsBetweenDatabaseDumps;
-	}
-
-	public void setNumYearsBetweenDatabaseDumps(Integer numYearsBetweenDatabaseDumps) {
-		this.numYearsBetweenDatabaseDumps = numYearsBetweenDatabaseDumps;
-	}
-
 	public Boolean getProduceOutputTables() {
 		return produceOutputTables;
 	}
 
 	public void setProduceOutputTables(Boolean produceOutputTables) {
 		this.produceOutputTables = produceOutputTables;
+	}
+
+	public boolean isExportToDatabase() {
+		return exportToDatabase;
+	}
+
+	public void setExportToDatabase(boolean exportToDatabase) {
+		this.exportToDatabase = exportToDatabase;
+	}
+
+	public boolean isExportToCSV() {
+		return exportToCSV;
+	}
+
+	public void setExportToCSV(boolean exportToCSV) {
+		this.exportToCSV = exportToCSV;
+	}
+
+	public boolean isSaveSimData() {
+		return saveSimData;
+	}
+
+	public void setSaveSimData(boolean saveSimData) {
+		this.saveSimData = saveSimData;
+	}
+
+	public boolean isSaveNbhdData() {
+		return saveNbhdData;
+	}
+
+	public void setSaveNbhdData(boolean saveNbhdData) {
+		this.saveNbhdData = saveNbhdData;
+	}
+
+	public boolean isSaveCityData() {
+		return saveCityData;
+	}
+
+	public void setSaveCityData(boolean saveCityData) {
+		this.saveCityData = saveCityData;
+	}
+
+	public Integer getYearToBeginDataSnapshots() {
+		return yearToBeginDataSnapshots;
+	}
+
+	public void setYearToBeginDataSnapshots(Integer yearToBeginDataSnapshots) {
+		this.yearToBeginDataSnapshots = yearToBeginDataSnapshots;
+	}
+
+	public Integer getNumYearsBetweenDatabaseSnapshots() {
+		return numYearsBetweenDatabaseSnapshots;
+	}
+
+	public void setNumYearsBetweenDatabaseSnapshots(Integer numYearsBetweenDatabaseSnapshots) {
+		this.numYearsBetweenDatabaseSnapshots = numYearsBetweenDatabaseSnapshots;
 	}
 
 //	public Integer getNumQuantilesForNbhdTable() {
