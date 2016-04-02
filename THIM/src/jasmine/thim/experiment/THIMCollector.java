@@ -1,6 +1,6 @@
 package jasmine.thim.experiment;
 
-import microsim.annotation.ModelParameter;
+import microsim.annotation.GUIparameter;
 import microsim.data.DataExport;
 import microsim.data.MultiKeyCoefficientMap;
 import microsim.engine.AbstractSimulationCollectorManager;
@@ -30,39 +30,39 @@ public class THIMCollector extends AbstractSimulationCollectorManager implements
 	private final static Logger log = Logger.getLogger(THIMCollector.class);
 
 //	Needs to be in Model class as Statistics class needs it to determine when to record death data in Sim class
-//	@ModelParameter(description="year in which to start collecting data to produce output tables")
+//	@GUIparameter(description="year in which to start collecting data to produce output tables")
 //	private Integer recordDataAfterYear = 450;
 //	
-//	@ModelParameter(description="number of age bins")
+//	@GUIparameter(description="number of age bins")
 //	private Integer numAgeBinsInTables = 20;
 //	
 //	private double numYearsInTableBins;				//The number of years of age range each bin contains (== max age / numAgeBinsInTables)
 
-	@ModelParameter(description="produce output tables in .csv format")
+	@GUIparameter(description="produce output tables in .csv format")
 	private boolean produceOutputTables = true;
 	
-	@ModelParameter(description="Export snapshots to database")
+	@GUIparameter(description="Export snapshots to database")
 	private boolean exportToDatabase = false;
 
-	@ModelParameter(description="Export snapshots to .csv files")
+	@GUIparameter(description="Export snapshots to .csv files")
 	private boolean exportToCSV = false;
 
-	@ModelParameter(description="persists the individual sim data in the database")
+	@GUIparameter(description="persists the individual sim data in the database")
 	private boolean saveSimData = false;
 	
-	@ModelParameter(description="persists the nbhd data in the database")
+	@GUIparameter(description="persists the nbhd data in the database")
 	private boolean saveNbhdData = false;
 	
-	@ModelParameter(description="persists the aggregate city-level statistics in the database")
+	@GUIparameter(description="persists the aggregate city-level statistics in the database")
 	private boolean saveCityData = false;
 	
-	@ModelParameter(description="year to start persisting snapshots of data for export")
+	@GUIparameter(description="year to start persisting snapshots of data for export")
 	private Integer yearToBeginDataSnapshots = 0;		//Allows the user to control when the simulation starts exporting to the database, in case they want to delay exporting until after an initial 'burn-in' period.	
 	
-	@ModelParameter(description="number of years between snapshots")
+	@GUIparameter(description="number of years between snapshots")
 	private Integer numYearsBetweenDatabaseSnapshots = 1;
 	
-//	@ModelParameter(description="number of quantiles for nbhd table")
+//	@GUIparameter(description="number of quantiles for nbhd table")
 //	private Integer numQuantilesForNbhdTable = 7;		//Attempt to capture a range of quantiles as in the ModGen ad-hoc nbhd rank numbers...
 	
 	DataExport simsOutput;

@@ -1,6 +1,6 @@
 package jasmine.thim.model;
 
-import microsim.annotation.ModelParameter;
+import microsim.annotation.GUIparameter;
 import microsim.engine.AbstractSimulationManager;
 import microsim.engine.SimulationEngine;
 import microsim.event.EventListener;
@@ -34,71 +34,71 @@ public class THIMModel extends AbstractSimulationManager implements EventListene
 			
 	//Parameters for model evolution
 	
-	@ModelParameter(description="Type of city, either C, U (with/out Mortality Factors) or ModGen")		//As defined in the THIM paper.  Now there are also options C_NoMortalityFactors and U_NoMortalityFactors to turn off health and income factors in determining mortality, to test whether the population is stable in these cases and with the specific fertilityHazard calculated.
+	@GUIparameter(description="Type of city, either C, U (with/out Mortality Factors) or ModGen")		//As defined in the THIM paper.  Now there are also options C_NoMortalityFactors and U_NoMortalityFactors to turn off health and income factors in determining mortality, to test whether the population is stable in these cases and with the specific fertilityHazard calculated.
 	@Enumerated(EnumType.STRING)
 	private CityType cityType = CityType.U;
 	
-	@ModelParameter(description="Gini coefficient for the Income Base distribution")		//Values from 'THIM parms aq.xls' file from Wolfson et al.
+	@GUIparameter(description="Gini coefficient for the Income Base distribution")		//Values from 'THIM parms aq.xls' file from Wolfson et al.
 	@Enumerated(EnumType.STRING)
 	private IncomeBaseGiniCoefficient incomeBaseGiniCoeff = IncomeBaseGiniCoefficient.Gini_0_570; 
 	
-	@ModelParameter(description="Number of years to run simulation")
+	@GUIparameter(description="Number of years to run simulation")
 	private Integer endYear = 500;			//In the paper and ModGen, the simulation spans 500 years.
 
 //	//TODO: loadInitialPopulationFromDatabase not ready yet!
-////	@ModelParameter(description="Toggle to choose whether to load initial population from database or generate within the model")
+////	@GUIparameter(description="Toggle to choose whether to load initial population from database or generate within the model")
 //	private Boolean loadInitialPopulationFromDatabase = false;
 
-	@ModelParameter(description="Initial population size")
+	@GUIparameter(description="Initial population size")
 	private Integer startingPopulationSize = THIMStart.getInitialPopulationSize();			//In paper and ModGen, around 50,000 Sims were used.  A reasonable starting value in our implementation (in terms of speed) is 10,000.
 	
-	@ModelParameter(description="Minimum age to give birth (should be greater or equal to maxYearsOfEducation)")
+	@GUIparameter(description="Minimum age to give birth (should be greater or equal to maxYearsOfEducation)")
 	private Integer minAgeToReproduce = 20;		//This value is used as an example in the paper.												
 	
-	@ModelParameter(description="Maximum age to give birth (greater than minAgeToReproduce and less than 100)")
+	@GUIparameter(description="Maximum age to give birth (greater than minAgeToReproduce and less than 100)")
 	private Integer maxAgeToReproduce = 40;		//This value is used as an example in the paper.
 	
-	@ModelParameter(description="Minimum years in education (before receiving an income and being able to move neighbourhood)")
+	@GUIparameter(description="Minimum years in education (before receiving an income and being able to move neighbourhood)")
 	private Integer minYearsOfEducation = 1;	//This value is used as an example in the paper.
 
-	@ModelParameter(description="Maximum years in education (before receiving an income and being able to move neighbourhood)")
+	@GUIparameter(description="Maximum years in education (before receiving an income and being able to move neighbourhood)")
 	private Integer maxYearsOfEducation = 20;	//This value is used as an example in the paper.
 	
-	@ModelParameter(description="Minimum base income reflecting innate ability and permanent income")
+	@GUIparameter(description="Minimum base income reflecting innate ability and permanent income")
 	private Double minBaseIncome = 0.1;		//Distribution in ModGen has domain exp(-2.8) to exp(2.8), so 0.061 to 16.44.  However, ModGen parameters uploaded on March 1st 2015 to the uSask GitLab server restrict this to [0.1, 15] (thim-master/modgen/src/Base(Parameters).dat), so we are cutting off the ends of the distribution!
 //	private Double minBaseIncome = 0.06;
 	
-	@ModelParameter(description="Maximum base income reflecting innate ability and permanent income")
+	@GUIparameter(description="Maximum base income reflecting innate ability and permanent income")
 	private Double maxBaseIncome = 15.;		//Distribution in ModGen has domain exp(-2.8) to exp(2.8), so 0.061 to 16.44.  However, ModGen parameters uploaded on March 1st 2015 to the uSask GitLab server restrict this to [0.1, 15] (thim-master/modgen/src/Base(Parameters).dat), so we are cutting off the ends of the distribution!
 //	private Double maxBaseIncome = 16.5;
 	
-	@ModelParameter(description="Age band describes the interval (a +/- AgeBand) which determines "
+	@GUIparameter(description="Age band describes the interval (a +/- AgeBand) which determines "
 			+ "the comparison group in avgIncomeNearAge")
 	private Integer ageBand = 10;				//This value is used as an example in the paper.
 	
-	@ModelParameter(description="If MaxOccupancyFactor > 1, there is always a nbhd with space in "
+	@GUIparameter(description="If MaxOccupancyFactor > 1, there is always a nbhd with space in "
 			+ "which the sim can move (if it is preferable????)")
 	private Double maxOccupancyFactor = 4.;		//This value is used as an example in the paper
 	
-	@ModelParameter(description="Choose whether to fix the Random Number seed")
+	@GUIparameter(description="Choose whether to fix the Random Number seed")
 	private Boolean fixRandomSeed = false;
 	
-	@ModelParameter(description="Choose whether to fix the Random Number seed")
+	@GUIparameter(description="Choose whether to fix the Random Number seed")
 	private Integer randomSeedIfFixed = 0;
 
 	//Bonus parameters - not specified in the THIM document
-	@ModelParameter(description="Minimum possible healthIndex value")			//Could make into model parameter that can be specified in the GUI if desired
+	@GUIparameter(description="Minimum possible healthIndex value")			//Could make into model parameter that can be specified in the GUI if desired
 	private Double minHealthIndex = 0.;		//Paper specifies this as 0
 	
-	@ModelParameter(description="Maximum possible healthIndex value")			//Could make into model parameter that can be specified in the GUI if desired
+	@GUIparameter(description="Maximum possible healthIndex value")			//Could make into model parameter that can be specified in the GUI if desired
 	private Double maxHealthIndex = 1.;		//Paper specifies this as 1 (which is what new born Sims are endowed with)
 	
 	//Parameters to configure output tables - not for model evolution.
 	
-	@ModelParameter(description="year in which to start collecting data to produce output tables")
+	@GUIparameter(description="year in which to start collecting data to produce output tables")
 	private Integer recordDataAfterYear = 450;		
 	
-	@ModelParameter(description="number of age bins")
+	@GUIparameter(description="number of age bins")
 	private Integer numAgeBinsInTables = 20;			
 	
 	private double ageBinInterval;				//The number of years of age range each bin contains (== max age / numAgeBinsInTables)

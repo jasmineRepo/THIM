@@ -1,6 +1,6 @@
 package jasmine.thim.experiment;
 
-import microsim.annotation.ModelParameter;
+import microsim.annotation.GUIparameter;
 import microsim.engine.AbstractSimulationObserverManager;
 import microsim.engine.SimulationCollectorManager;
 import microsim.engine.SimulationManager;
@@ -25,10 +25,10 @@ public class THIMObserver extends AbstractSimulationObserverManager implements I
 	
 	private final static Logger log = Logger.getLogger(THIMObserver.class);
 
-	@ModelParameter(description="Toggle to turn off Observer for increased execution speed")
+	@GUIparameter(description="Toggle to turn off Observer for increased execution speed")
 	private boolean observerOn = true;				//Observer contains methods to plot to GUI and persist extra data to the Statistics database that is not actually required to run the simultation processes, e.g. city-wide average years in education using the fMeanEducation field below. 
 	
-	@ModelParameter
+	@GUIparameter
 	private Double displayFrequency = 1.;
 
 	private TimeSeriesSimulationPlotter agePlotter;
