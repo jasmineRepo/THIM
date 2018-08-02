@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.log4j.Logger;
@@ -103,16 +103,16 @@ public class THIMCollector extends AbstractSimulationCollectorManager implements
 	public void buildSchedule() {
 
 		if(saveCityData || saveNbhdData || saveSimData) {
-			getEngine().getEventList().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpInfo), yearToBeginDataSnapshots, Order.BEFORE_ALL.getOrdering()+1, numYearsBetweenDatabaseSnapshots);		//Dump info from year 'yearDatabaseDumpStarts' onwards, with numYearsBetweenDatabaseDumps specifying the frequency of database dumps thereafter (nbhd and statistics only updated at start of new year, Sim data only updated once a year on their birth'day's (year + birthTimestamps), so once a year is minimum suitable frequency to dump to database
+			getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.DumpInfo), yearToBeginDataSnapshots, Order.BEFORE_ALL.getOrdering()+1, numYearsBetweenDatabaseSnapshots);		//Dump info from year 'yearDatabaseDumpStarts' onwards, with numYearsBetweenDatabaseDumps specifying the frequency of database dumps thereafter (nbhd and statistics only updated at start of new year, Sim data only updated once a year on their birth'day's (year + birthTimestamps), so once a year is minimum suitable frequency to dump to database
 
 //			//Dump data to database at the (scheduled) end of the simulation
 //			getEngine().getEventList().schedule(new SingleTargetEvent(this, Processes.DumpInfo), ((THIMModel) getManager()).getEndYear(), Order.BEFORE_ALL.getOrdering()+1, 0.);
 		}
 		
 		if(produceOutputTables) {
-			getEngine().getEventList().scheduleOnce(new SingleTargetEvent(this, Processes.ResetOutputStatistics), ((THIMModel) getManager()).getRecordDataAfterYear(), Order.BEFORE_ALL.getOrdering());		//Clear out previously accumulated stats (probably cheaper in terms of time than checking every year whether the statistics should be recorded, plus it requires simpler code).
-			getEngine().getEventList().scheduleRepeat(new SingleTargetEvent(this, Processes.IncrementAverages), ((THIMModel) getManager()).getRecordDataAfterYear(), -1, 1.);		//At the start of the year (just after Statistics.updateStatistics() has been called), add the new data to the existing averages.
-			getEngine().getEventList().scheduleOnce(new SingleTargetEvent(this, Processes.ProduceOutputTables), ((THIMModel) getManager()).getEndYear(), Order.AFTER_ALL.getOrdering()-1);		//Produce output just before terminating simulation
+			getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.ResetOutputStatistics), ((THIMModel) getManager()).getRecordDataAfterYear(), Order.BEFORE_ALL.getOrdering());		//Clear out previously accumulated stats (probably cheaper in terms of time than checking every year whether the statistics should be recorded, plus it requires simpler code).
+			getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.IncrementAverages), ((THIMModel) getManager()).getRecordDataAfterYear(), -1, 1.);		//At the start of the year (just after Statistics.updateStatistics() has been called), add the new data to the existing averages.
+			getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.ProduceOutputTables), ((THIMModel) getManager()).getEndYear(), Order.AFTER_ALL.getOrdering()-1);		//Produce output just before terminating simulation
 		}
 	}
 	

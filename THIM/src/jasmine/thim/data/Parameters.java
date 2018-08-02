@@ -10,7 +10,7 @@ import jasmine.thim.model.enums.IncomeBaseGiniCoefficient;
 import java.lang.reflect.Field;
 import java.util.TreeMap;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.math.ArgumentOutsideDomainException;
 import org.apache.commons.math.analysis.interpolation.LinearInterpolator;
 import org.apache.commons.math.analysis.polynomials.PolynomialSplineFunction;

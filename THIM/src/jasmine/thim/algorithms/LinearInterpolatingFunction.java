@@ -4,7 +4,7 @@ import microsim.data.MultiKeyCoefficientMap;
 
 import java.util.TreeMap;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.collections4.keyvalue.MultiKey;
 import org.apache.commons.math.analysis.interpolation.LinearInterpolator;
 import org.apache.commons.math.analysis.polynomials.PolynomialSplineFunction;
 

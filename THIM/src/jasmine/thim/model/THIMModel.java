@@ -235,12 +235,12 @@ public class THIMModel extends AbstractSimulationManager implements EventListene
 
 	public void buildSchedule() {		
 		
-		getEngine().getEventList().scheduleOnce(new SingleTargetEvent(this, Processes.ResetTimer), 0., Order.BEFORE_ALL.getOrdering());			//Start timer 
+		getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.ResetTimer), 0., Order.BEFORE_ALL.getOrdering());			//Start timer 
 		
 		stats.updateStatistics(); 			//Call now before start of simulation so that the statistics exist for inital agent initialisation and process scheduling.
-		getEngine().getEventList().scheduleRepeat(new SingleTargetEvent(this, Processes.UpdateStatistics), 1., Order.BEFORE_ALL.getOrdering(), 1.);  //Events repeated every year just before the start of the New Year
+		getEngine().getEventQueue().scheduleRepeat(new SingleTargetEvent(this, Processes.UpdateStatistics), 1., Order.BEFORE_ALL.getOrdering(), 1.);  //Events repeated every year just before the start of the New Year
 
-		getEngine().getEventList().scheduleOnce(new SingleTargetEvent(this, Processes.Stop), endYear, Order.AFTER_ALL.getOrdering());
+		getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.Stop), endYear, Order.AFTER_ALL.getOrdering());
 		
 		long timeToCompleteBuild = System.currentTimeMillis() - elapsedTime;
 		log.info("Build completed.  Time taken is " + timeToCompleteBuild + "ms.");
@@ -352,7 +352,7 @@ public class THIMModel extends AbstractSimulationManager implements EventListene
 		return sims.remove(sim);
 	}
 
-	public Nbhd getNbhd(Integer nbhdId) {			
+	public Nbhd getNbhd(int nbhdId) {			
 		return nbhds.get(nbhdId);
 	}
 

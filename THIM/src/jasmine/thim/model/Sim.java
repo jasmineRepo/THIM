@@ -233,7 +233,7 @@ public class Sim implements EventListener, IDoubleSource, IIntSource {
 
 		//Set new sim's nbhd to that of the parent.
 		this.nbhd = parent.getNbhd();					
-		this.setNbhdId(nbhd.getKey().getId().intValue());
+		this.setNbhdId((int) nbhd.getKey().getId());
 
 		scheduleNewBornSimEvents();				//Schedule future events where the date is known at birth (e.g. when the Sim becomes fertile and calls considerBirth for the first time, when the sim finishes education etc. 
 
@@ -246,27 +246,27 @@ public class Sim implements EventListener, IDoubleSource, IIntSource {
 
 	public void scheduleInitialSimEvents() {		//For initial sim population
 
-		model.getEngine().getEventList().scheduleRepeat(simYearlyEvents, birthTimestamp, -1, 1.);			//Events that are repeated every year
+		model.getEngine().getEventQueue().scheduleRepeat(simYearlyEvents, birthTimestamp, -1, 1.);			//Events that are repeated every year
 		
 		long yearsToFinishEducation = Math.max(1, (yearsInEducation-age)) - 1;    //Has the value of 0 if the same age or already older than yearsInEducation, i.e. have already finished education, but also if less than a year to go until finishing education (e.g. the sim is 14 years old and has 15 years of education - as we are at the start of the new year, the sim will turn 15 during the forthcoming year).
 //		double timeSimFirstEarnsIncome = SimulationEngine.getInstance().getTime() + birthTimestamp + yearsToFinishEducation;		//On the Sim's birthday, either on the day they finish education, or the first birthday since the start of the simulation if they have already finished education when the simulation starts.
 		double timeSimFirstEarnsIncome = birthTimestamp + (double)yearsToFinishEducation;		//On the Sim's birthday, either on the day they finish education, or the first birthday since the start of the simulation if they have already finished education when the simulation starts.
-		model.getEngine().getEventList().scheduleOnce(new SingleTargetEvent(this, Processes.StopFollowingParent), timeSimFirstEarnsIncome, Order.BEFORE_ALL.getOrdering());						
+		model.getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.StopFollowingParent), timeSimFirstEarnsIncome, Order.BEFORE_ALL.getOrdering());						
 
 
 		if(age < model.getMaxAgeToReproduce()) {
 			//Set to consider calculating waiting time to give birth when the Sim's age reaches the minimum age to reproduce.
 //			double timeSimFirstConsidersBirth = SimulationEngine.getInstance().getTime() + birthTimestamp + Math.max(1, model.getMinAgeToReproduce()-age) - 1;
 			double timeSimFirstConsidersBirth = birthTimestamp + (double)(Math.max(1, model.getMinAgeToReproduce()-age) - 1);
-			model.getEngine().getEventList().scheduleOnce(new SingleTargetEvent(this, Processes.ConsiderBirth), timeSimFirstConsidersBirth, 1);		//Again, max(1,) used so that if Sim has age equal to or greater than minAgeToReproduce, considerBirth will be scheduled to occur sometime in the forthcoming year depending on the value of the birthDayOffset.  Note that considerBirth is only rescheduled within the birth() method, i.e. only if/when a Sim gives birth to its first child sim, will it schedule another considerBirth.
+			model.getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.ConsiderBirth), timeSimFirstConsidersBirth, 1);		//Again, max(1,) used so that if Sim has age equal to or greater than minAgeToReproduce, considerBirth will be scheduled to occur sometime in the forthcoming year depending on the value of the birthDayOffset.  Note that considerBirth is only rescheduled within the birth() method, i.e. only if/when a Sim gives birth to its first child sim, will it schedule another considerBirth.
 		}		
 	}
 	
 	public void scheduleNewBornSimEvents() {		//For newborn sims  
-		model.getEngine().getEventList().scheduleRepeat(simYearlyEvents, SimulationEngine.getInstance().getTime() + 1., -1, 1.);			//Events that are repeated every year
-		model.getEngine().getEventList().scheduleOnce(new SingleTargetEvent(this, Processes.StopFollowingParent), SimulationEngine.getInstance().getTime() + (double)yearsInEducation, Order.BEFORE_ALL.getOrdering());
+		model.getEngine().getEventQueue().scheduleRepeat(simYearlyEvents, SimulationEngine.getInstance().getTime() + 1., -1, 1.);			//Events that are repeated every year
+		model.getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.StopFollowingParent), SimulationEngine.getInstance().getTime() + (double)yearsInEducation, Order.BEFORE_ALL.getOrdering());
 		double timeSimFirstConsidersBirth = SimulationEngine.getInstance().getTime() + (double)model.getMinAgeToReproduce();
-		model.getEngine().getEventList().scheduleOnce(new SingleTargetEvent(this, Processes.ConsiderBirth), timeSimFirstConsidersBirth, 1);		//Note that considerBirth is only rescheduled within the birth() method, i.e. only if/when a Sim gives birth to its first child sim, will it schedule another considerBirth.
+		model.getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.ConsiderBirth), timeSimFirstConsidersBirth, 1);		//Note that considerBirth is only rescheduled within the birth() method, i.e. only if/when a Sim gives birth to its first child sim, will it schedule another considerBirth.
 		
 	}
 
@@ -512,7 +512,7 @@ public class Sim implements EventListener, IDoubleSource, IIntSource {
 	
 	private void moveNbhd(Nbhd newNbhd) {
 		nbhd = newNbhd;
-		nbhdId = nbhd.getKey().getId().intValue();		
+		nbhdId = (int) nbhd.getKey().getId();		
 	}
 
 	protected void considerBirth() {   
@@ -523,7 +523,7 @@ public class Sim implements EventListener, IDoubleSource, IIntSource {
 
 			//Schedule birth event if Sim will have age less than maxAgeToReproduce when the birth is due to occur 
 			if(age + (int)timeUntilBirth < model.getMaxAgeToReproduce()) {
-				model.getEngine().getEventList().scheduleOnce(new SingleTargetEvent(this, Processes.GiveBirth), SimulationEngine.getInstance().getTime() + timeUntilBirth, 10);		//Note that considerBirth is only rescheduled within the birth() method, i.e. only if/when a Sim gives birth to its first child sim, will it schedule another considerBirth.
+				model.getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.GiveBirth), SimulationEngine.getInstance().getTime() + timeUntilBirth, 10);		//Note that considerBirth is only rescheduled within the birth() method, i.e. only if/when a Sim gives birth to its first child sim, will it schedule another considerBirth.
 			}			
 		}
 	}
@@ -570,12 +570,12 @@ public class Sim implements EventListener, IDoubleSource, IIntSource {
 			}
 		}
 		if(timeUntilDeath < 1.) {
-			model.getEngine().getEventList().scheduleOnce(new SingleTargetEvent(this, Processes.Death), SimulationEngine.getInstance().getTime() + timeUntilDeath, 9);
+			model.getEngine().getEventQueue().scheduleOnce(new SingleTargetEvent(this, Processes.Death), SimulationEngine.getInstance().getTime() + timeUntilDeath, 9);
 		}		
 	}
 	
 	protected void death() {
-		model.getEngine().getEventList().unschedule(simYearlyEvents);		//Remove yearly events of this sim from the schedule
+		model.getEngine().getEventQueue().unschedule(simYearlyEvents);		//Remove yearly events of this sim from the schedule
 		
 		stopFollowingParent();		//If still following parent, Sim removes itself from parent's childSims list so that parent does make this Sim move nbhd in future, as this Sim is about to die.
 		for(Sim child : childSims) {		//(If they have childSims)

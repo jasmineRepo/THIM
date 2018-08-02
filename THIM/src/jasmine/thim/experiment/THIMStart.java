@@ -50,7 +50,7 @@ public class THIMStart implements ExperimentBuilder {
 		}
 		
 		if(!useDatabase) {
-			engine.setSilentMode(true);							//Turn off database mode
+			engine.setTurnOffDatabaseConnection(true);							//Turn off database mode
 		}
 //		engine.setBuilderClass(THIMStart.class);				//deprecated
 		THIMStart experimentBuilder = new THIMStart();			//New version

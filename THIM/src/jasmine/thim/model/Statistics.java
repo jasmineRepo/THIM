@@ -11,6 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
+import org.apache.commons.collections4.keyvalue.MultiKey;
+
 @Entity
 public class Statistics {
 
@@ -291,7 +293,7 @@ public class Statistics {
 		///////////////////////////////////////////////////////////////////////////////////////////////
 		
 		for(Nbhd nbhd : model.getNbhds()) {
-			int nbhdId = nbhd.getKey().getId().intValue();
+			int nbhdId = (int) nbhd.getKey().getId();
 			
 			double avgAdultIncomeInThisNbhd = avgAdultIncomeInNbhd[nbhdId];
 			if(avgAdultIncome > 0) {
@@ -317,7 +319,7 @@ public class Statistics {
 			}
 			
 			//Set fields in Nbhd class (For output tables)
-			if(!SimulationEngine.getInstance().isSilentMode()) {		//No need to persist in nbhd entity if database option is turned off!
+			if(!SimulationEngine.getInstance().isTurnOffDatabaseConnection()) {		//No need to persist in nbhd entity if database option is turned off!
 				nbhd.setAvgNbhdAge(avgNbhdAge[nbhdId]);
 				nbhd.setAvgNbhdEducation(avgNbhdEducation[nbhdId]);
 				nbhd.setAvgNbhdHealthIndex(avgNbhdHealthIndex[nbhdId]);
@@ -451,8 +453,9 @@ public class Statistics {
 		
 		//For lifetimeIncomeAndHealth table
 		for(Object multiKey : lifetimeIncomeLifetimeHealthHistogram.keySet()) {					//Probably not needed, as recordStatisticsAtDeath() checks the time to decide whether to update this statistical object
-			lifetimeIncomeLifetimeHealthHistogram.put(multiKey, 0);				//Initialise values to 0
+			lifetimeIncomeLifetimeHealthHistogram.put((MultiKey) multiKey, 0.);				//Initialise values to 0
 		}
+		
 
 	}
 	
@@ -461,7 +464,7 @@ public class Statistics {
 		//For lifetimeIncomeAndHealth tables
 		lifetimeIncomeLifetimeHealthHistogram = Parameters.getLifetimeEarningsHealthHistogram();		//Set to MultiKeyCoefficientMap loaded in externally from LavgYLavgHForComp.xls file.
 		for(Object multiKey : lifetimeIncomeLifetimeHealthHistogram.keySet()) {
-			lifetimeIncomeLifetimeHealthHistogram.put(multiKey, 0);				//Initialise values to 0
+			lifetimeIncomeLifetimeHealthHistogram.put((MultiKey) multiKey, 0.);				//Initialise values to 0
 		}
 
 		//For age bin tables

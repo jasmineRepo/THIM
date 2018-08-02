@@ -86,7 +86,7 @@ public class THIMObserver extends AbstractSimulationObserverManager implements I
 			eventGroup.addEvent(agePlotter, CommonEventType.Update);
 			eventGroup.addEvent(incomePlotter, CommonEventType.Update);
 			eventGroup.addEvent(healthPlotter, CommonEventType.Update);
-			getEngine().getEventList().scheduleRepeat(eventGroup, 0., Order.AFTER_ALL.getOrdering()-1, displayFrequency);
+			getEngine().getEventQueue().scheduleRepeat(eventGroup, 0., Order.AFTER_ALL.getOrdering()-1, displayFrequency);
 
 			log.debug("Observer schedule created");
 
